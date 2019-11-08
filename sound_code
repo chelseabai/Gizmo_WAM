@@ -1,7 +1,6 @@
 #include <Adafruit_CircuitPlayground.h>
 #include "C:\Users\Ana\Desktop\Gizmo\Project\pitches.h\pitches.h.ino"
 
-//PACMAN START SONG
 // Melody notes:
 int melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
   NOTE_C4, NOTE_C5,NOTE_G4, NOTE_E4, NOTE_C5,NOTE_G4, NOTE_E4, 
@@ -11,15 +10,19 @@ int melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
 int noteDurations[] = { 8,8,8,8,16,5,4,8,8,8,8,16,5,4,8,8,8,8,16,5,4,24,24,12,24,24,12,24,24,12,6 };
 
+int mainpress = 0;
+int mainswitchPin = 9;
+
 void setup() {
 
-CircuitPlayground.begin();
+  CircuitPlayground.begin();
+  pinMode(mainswitchPin,INPUT);
   
 }
 
 void loop() { 
-  pressSwitch1 = digitalRead();
-  if(CircuitPlayground.rightButton()) { 
+  mainpress = digitalRead(mainswitchPin);
+  if(mainpress) { 
     
     for (int thisNote = 0; thisNote < 31; thisNote++) {
       
@@ -36,4 +39,3 @@ void loop() {
     }
   
  }
-
