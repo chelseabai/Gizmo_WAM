@@ -197,6 +197,8 @@ void loop() {
       previousMillis = millis();
       Serial.println(previousMillis);
     }  
+    easyDown = easyDown - 300;
+    easyUp = easyUp - 300;
   }
 }
 
