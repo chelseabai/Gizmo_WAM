@@ -1,0 +1,51 @@
+/*
+Happy Birthday Song!
+Modified to work with Adafruit's Circuit Playground 
+
+To play the song just press the right button on the Circuit Playground
+
+Thanks to Mike Barela for writing a guide for the Tone library for CP
+His tutorial can be found here:
+https://learn.adafruit.com/circuit-playground-music/the-sound-of-music
+ 
+ */
+
+ 
+#include <Adafruit_CircuitPlayground.h>
+#include "C:\Users\Ana\Desktop\Gizmo\Project\pitches.h\pitches.h.ino"
+
+// Melody notes:
+int melody[]= {NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, NOTE_C4, NOTE_B3,
+NOTE_G3,NOTE_G3, NOTE_A3,NOTE_G3, NOTE_D4, NOTE_C4,
+NOTE_G3, NOTE_G3, NOTE_G4,NOTE_E4,NOTE_C4, NOTE_B3, NOTE_A3,
+NOTE_F4, NOTE_F4, NOTE_E4, NOTE_C4, NOTE_D4, NOTE_C4 };
+
+// note durations: 4 = quarter note, 8 = eighth note, etc.:
+int noteDurations[] = { 8,8,4,4,4,2,8,8,4,4,4,2,8,8,4,4,4,4,3,8,8,4,4,4,2 };
+
+void setup() {
+
+CircuitPlayground.begin();
+  
+}
+
+void loop() { 
+  
+  if(CircuitPlayground.rightButton()) { 
+    
+    for (int thisNote = 0; thisNote < 26; thisNote++) {
+      
+            int noteDuration = 1000/noteDurations[thisNote];
+             // to calculating note duration  (1 second divided by the note type)
+             
+             CircuitPlayground.playTone(melody[thisNote],noteDuration);
+             // to distinguish the notes, set a minimum time between them.
+             
+             int pauseBetweenNotes = noteDuration * 1.60;
+             delay(pauseBetweenNotes);
+             noTone(8);
+       }   
+    }
+  
+ }
+
