@@ -1,27 +1,15 @@
-/*
-Happy Birthday Song!
-Modified to work with Adafruit's Circuit Playground 
-
-To play the song just press the right button on the Circuit Playground
-
-Thanks to Mike Barela for writing a guide for the Tone library for CP
-His tutorial can be found here:
-https://learn.adafruit.com/circuit-playground-music/the-sound-of-music
- 
- */
-
- 
 #include <Adafruit_CircuitPlayground.h>
 #include "C:\Users\Ana\Desktop\Gizmo\Project\pitches.h\pitches.h.ino"
 
+//PACMAN START SONG
 // Melody notes:
-int melody[]= {NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, NOTE_C4, NOTE_B3,
-NOTE_G3,NOTE_G3, NOTE_A3,NOTE_G3, NOTE_D4, NOTE_C4,
-NOTE_G3, NOTE_G3, NOTE_G4,NOTE_E4,NOTE_C4, NOTE_B3, NOTE_A3,
-NOTE_F4, NOTE_F4, NOTE_E4, NOTE_C4, NOTE_D4, NOTE_C4 };
-
+int melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
+  NOTE_C4, NOTE_C5,NOTE_G4, NOTE_E4, NOTE_C5,NOTE_G4, NOTE_E4, 
+  NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
+  NOTE_DS4, NOTE_E4, NOTE_F4, NOTE_F4, NOTE_FS4, NOTE_G4, NOTE_GS4, NOTE_A5, NOTE_B5 };
+  
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = { 8,8,4,4,4,2,8,8,4,4,4,2,8,8,4,4,4,4,3,8,8,4,4,4,2 };
+int noteDurations[] = { 8,8,8,8,16,5,4,8,8,8,8,16,5,4,8,8,8,8,16,5,4,24,24,12,24,24,12,24,24,12,6 };
 
 void setup() {
 
@@ -30,18 +18,18 @@ CircuitPlayground.begin();
 }
 
 void loop() { 
-  
+  pressSwitch1 = digitalRead();
   if(CircuitPlayground.rightButton()) { 
     
-    for (int thisNote = 0; thisNote < 26; thisNote++) {
+    for (int thisNote = 0; thisNote < 31; thisNote++) {
       
-            int noteDuration = 1000/noteDurations[thisNote];
+            int noteDuration = 600/noteDurations[thisNote];
              // to calculating note duration  (1 second divided by the note type)
              
              CircuitPlayground.playTone(melody[thisNote],noteDuration);
              // to distinguish the notes, set a minimum time between them.
              
-             int pauseBetweenNotes = noteDuration * 1.60;
+             int pauseBetweenNotes = noteDuration * 1.10;
              delay(pauseBetweenNotes);
              noTone(8);
        }   
