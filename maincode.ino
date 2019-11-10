@@ -26,11 +26,16 @@ unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
 
 //change the sensor pin here
+int mainswitchPin = 5;
 int switchPin1 = 2;
 int switchPin2 = 3;
 int switchPin3 = 4;
 
+int soundPin = 7;
+
+
 //initialise sensor readings
+int mainpress = 0;
 int pressSwitch1 = 0;
 int pressSwitch2 = 0;
 int pressSwitch3 = 0;
@@ -54,6 +59,7 @@ int motorControl1 (int interval) {
 
     
     if(pressSwitch1){
+      digitalWrite(soundPin,HIGH);
       Serial.println("Motor 1: HIT");
       Motor1.write(angleInitial);
       Serial.println("Motor 1: DOWN");
@@ -70,17 +76,20 @@ int motorControl1 (int interval) {
       break;
     }
   } 
+  digitalWrite(soundPin,LOW);
 }
 
 int motorControl2 (int interval) {
   Motor2.write(angleUP);
   while (true) {
     int dif2 = millis() - previousMillis2;
+    pressSwitch2 = digitalRead(switchPin2);
     Serial.println("Motor 2: UP");
     Serial.println(dif2);
 
         
     if(pressSwitch2){
+      digitalWrite(soundPin,HIGH);
       Serial.println("Motor 2: HIT");
       Motor2.write(angleInitial);
       Serial.println("Motor 2: DOWN");
@@ -96,7 +105,8 @@ int motorControl2 (int interval) {
       return wins;
       break;
     }
-  }  
+  }
+  digitalWrite(soundPin,LOW);  
 }
 
 int motorControl3 (int interval) {
@@ -107,8 +117,9 @@ int motorControl3 (int interval) {
     Serial.println(dif2);
 
     if(pressSwitch3){
+      digitalWrite(soundPin,HIGH);
       Serial.println("Motor 3: HIT");
-      Motor1.write(angleInitial);
+      Motor3.write(angleInitial);
       Serial.println("Motor 3: DOWN");
       wins++;
       return wins;
@@ -122,7 +133,8 @@ int motorControl3 (int interval) {
       return wins;
       break;
     }
-  } 
+  }
+  digitalWrite(soundPin,LOW); 
 }
 
 
@@ -145,6 +157,8 @@ void setup() {
   pinMode(switchPin1,INPUT);
   pinMode(switchPin2,INPUT);
   pinMode(switchPin3,INPUT);
+  pinMode(mainswitchPin,INPUT);
+  pinMode(soundPin,OUTPUT);
 
   Serial.begin(9600);
 
@@ -152,55 +166,70 @@ void setup() {
 }
 
 void loop() {
-  int dif = millis() - previousMillis;
-  Serial.print(dif);
-  Serial.print(",");
-  Serial.print(previousMillis);
-  previousMillis1 = millis();
-  previousMillis2 = millis();
-  previousMillis3 = millis();
-  Serial.println(".");
+  mainpress = digitalRead(mainswitchPin);
+  if(mainpress){
+    Serial.println("Start!");
+    delay(6000);
+    previousMillis = millis();
+    previousMillis1 = millis();
+    previousMillis2 = millis();
+    previousMillis3 = millis();
+    while(true){
+      int dif = millis() - previousMillis;
+      Serial.print(dif);
+      Serial.print(",");
+      Serial.print(previousMillis);
+      previousMillis1 = millis();
+      previousMillis2 = millis();
+      previousMillis3 = millis();
+      Serial.println(".");
+    
+      //total game time
+      if (millis()  > 60000) {
+        Serial.println("END");
+        Serial.print("Score: ");
+        Serial.println(wins);
+        if (wins > highScore){
+          highScore = wins;
+          Serial.println("Highest Score!");
+        }
+        delay(2000);
+        exit(0);
+      }
+      
+      if (dif >= easyDown) {
+        randMotor = random(2);
+        if (randMotor == 0) {
+          Serial.print("Choose Motor 1");
+          motorControl1(easyUp);
+          delay(200);
+          previousMillis = millis();
+          Serial.println(previousMillis);
+        }
+        if (randMotor == 1) {
+          Serial.println("Choose Motor 2");
+          motorControl2(easyUp);
+          delay(200);
+          previousMillis = millis();
+          Serial.println(previousMillis);
+        }
+        if (randMotor == 2) {
+          Serial.println("Choose Motor 3");
+          motorControl3(easyUp);
+          delay(200);
+          previousMillis = millis();
+          Serial.println(previousMillis);
+        }  
+//        easyDown = easyDown - 300;
+//        easyUp = easyUp - 300;
+      }
+    }    
+  }
 
-  //total game time
-  if (millis()  > 60000) {
-    Serial.println("END");
-    Serial.print("Score: ");
-    Serial.println(wins);
-    if (wins > highScore){
-      highScore = wins;
-      Serial.println("Highest Score!");
-    }
-    delay(2000);
-    exit(0);
-  }
-  
-  if (dif >= easyDown) {
-    randMotor = random(3);
-    if (randMotor == 0) {
-      Serial.print("Choose Motor 1");
-      motorControl1(easyUp);
-      delay(200);
-      previousMillis = millis();
-      Serial.println(previousMillis);
-    }
-    if (randMotor == 1) {
-      Serial.println("Choose Motor 2");
-      motorControl2(easyUp);
-      delay(200);
-      previousMillis = millis();
-      Serial.println(previousMillis);
-    }
-    if (randMotor == 2) {
-      Serial.println("Choose Motor 3");
-      motorControl3(easyUp);
-      delay(200);
-      previousMillis = millis();
-      Serial.println(previousMillis);
-    }  
-    easyDown = easyDown - 300;
-    easyUp = easyUp - 300;
-  }
 }
+
+
+  
 
 
 
