@@ -76,7 +76,6 @@ int motorControl1 (int interval) {
       break;
     }
   } 
-  digitalWrite(soundPin,LOW);
 }
 
 int motorControl2 (int interval) {
@@ -106,7 +105,6 @@ int motorControl2 (int interval) {
       break;
     }
   }
-  digitalWrite(soundPin,LOW);  
 }
 
 int motorControl3 (int interval) {
@@ -134,7 +132,6 @@ int motorControl3 (int interval) {
       break;
     }
   }
-  digitalWrite(soundPin,LOW); 
 }
 
 
@@ -153,16 +150,18 @@ void setup() {
   Motor1.write(angleInitial);
   Motor2.write(angleInitial);
   Motor3.write(angleInitial);
+
  
   pinMode(switchPin1,INPUT);
   pinMode(switchPin2,INPUT);
   pinMode(switchPin3,INPUT);
   pinMode(mainswitchPin,INPUT);
+
+  digitalWrite(soundPin,LOW);
   pinMode(soundPin,OUTPUT);
 
   Serial.begin(9600);
-
-
+  
 }
 
 void loop() {
@@ -198,11 +197,13 @@ void loop() {
       }
       
       if (dif >= easyDown) {
-        randMotor = random(2);
+        randMotor = random(1);
         if (randMotor == 0) {
           Serial.print("Choose Motor 1");
           motorControl1(easyUp);
           delay(200);
+          digitalWrite(soundPin,LOW);  
+          Serial.println("low");
           previousMillis = millis();
           Serial.println(previousMillis);
         }
@@ -210,6 +211,8 @@ void loop() {
           Serial.println("Choose Motor 2");
           motorControl2(easyUp);
           delay(200);
+          digitalWrite(soundPin,LOW);  
+          Serial.println("low");
           previousMillis = millis();
           Serial.println(previousMillis);
         }
@@ -217,6 +220,8 @@ void loop() {
           Serial.println("Choose Motor 3");
           motorControl3(easyUp);
           delay(200);
+          digitalWrite(soundPin,LOW);  
+          Serial.println("low");
           previousMillis = millis();
           Serial.println(previousMillis);
         }  
