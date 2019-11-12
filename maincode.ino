@@ -266,16 +266,22 @@ void setup() {
   Motor1.attach(MotorPin1);
   Motor2.attach(MotorPin2);
   Motor3.attach(MotorPin3);
+  Motor4.attach(MotorPin4);
+  Motor5.attach(MotorPin5);
 
   //initialise the motor to 0 degree
   Motor1.write(angleInitial);
   Motor2.write(angleInitial);
   Motor3.write(angleInitial);
+  Motor4.write(angleInitial);
+  Motor5.write(angleInitial);
 
  
   pinMode(switchPin1,INPUT);
   pinMode(switchPin2,INPUT);
   pinMode(switchPin3,INPUT);
+  pinMode(switchPin4,INPUT);
+  pinMode(switchPin5,INPUT);
   pinMode(mainswitchPin,INPUT);
 
   digitalWrite(soundPin,LOW);
@@ -325,14 +331,18 @@ void loop() {
           highScore = wins;
           Serial.println("Highest Score!");
           for (int n=0; n<3; n++){
-            display.showNumberDec(wins);
-            delay(1000);
             display.setSegments(BEST);
+            delay(1000);
+            display.showNumberDec(wins);
             delay(1000);
           }
         } else{
-          display.showNumberDec(wins);
-          delay(6000);
+          for (int n=0; n<3; n++){
+            display.setSegments(NONE);
+            delay(1000);
+            display.showNumberDec(wins);
+            delay(1000);
+          }
         }
         exit(0);
       }
@@ -384,8 +394,8 @@ void loop() {
           previousMillis = millis();
           Serial.println(previousMillis);
         }
-      easyDown = easyDown - 300;
-      easyUp = easyUp - 300;
+      easyDown = easyDown - 100;
+      easyUp = easyUp - 100;
       }
     }    
   }
