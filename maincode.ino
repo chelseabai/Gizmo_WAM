@@ -39,6 +39,46 @@ const uint8_t BEST[] = {
   SEG_D | SEG_E | SEG_F | SEG_G               
   };
 
+// 'good'
+const uint8_t GOOD[] = {
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,                     
+  SEG_C | SEG_D | SEG_E | SEG_G,
+  SEG_C | SEG_D | SEG_E | SEG_G,
+  SEG_D | SEG_E | SEG_F | SEG_G | SEG_A               
+  };
+
+// 'bad'
+const uint8_t BAD[] = {
+  0,
+  SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,                     
+  SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,     
+  SEG_D | SEG_E | SEG_F | SEG_G | SEG_A               
+  };
+
+// 'you'
+const uint8_t YOU[] = {
+  0,
+  SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,  
+  SEG_C | SEG_D | SEG_E | SEG_G,                   
+  SEG_C | SEG_D | SEG_E             
+  };
+
+// 'got'
+const uint8_t GOT[] = {
+  0,
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,    
+  SEG_C | SEG_D | SEG_E | SEG_G,                   
+  SEG_D | SEG_E | SEG_G | SEG_F            
+  };
+
+// 'bye'
+const uint8_t BYE[] = {
+  0,
+  SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,    
+  SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,                
+  SEG_A | SEG_D | SEG_E | SEG_F | SEG_G          
+  };
+
 // define connection pins for timer here
 #define CLK A0
 #define DIO A1
@@ -170,6 +210,7 @@ int motorControl3 (int interval) {
   Motor3.write(angleUP);
   while (true) {
     int dif2 = millis() - previousMillis3;
+    pressSwitch3 = digitalRead(switchPin3);
     Serial.println("Motor 3: UP");
     Serial.println(dif2);
     countDown(); 
@@ -198,6 +239,7 @@ int motorControl4 (int interval) {
   Motor4.write(angleUP);
   while (true) {
     int dif2 = millis() - previousMillis4;
+    pressSwitch4 = digitalRead(switchPin4);
     Serial.println("Motor 4: UP");
     Serial.println(dif2);
     countDown(); 
@@ -226,6 +268,7 @@ int motorControl5 (int interval) {
   Motor5.write(angleUP);
   while (true) {
     int dif2 = millis() - previousMillis5;
+    pressSwitch5 = digitalRead(switchPin5);
     Serial.println("Motor 5: UP");
     Serial.println(dif2);
     countDown(); 
@@ -327,23 +370,26 @@ void loop() {
         Serial.println(wins);
         display.setSegments(END);
         delay(3000);
-        if (wins > highScore){
-          highScore = wins;
-          Serial.println("Highest Score!");
-          for (int n=0; n<3; n++){
-            display.setSegments(BEST);
+        display.setSegments(YOU);
+        delay(1000);
+        display.setSegments(GOT);
+        delay(1000);
+        if (wins >= 12){
+          for (int n=0; n<5; n++){
+            display.setSegments(wins);
             delay(1000);
-            display.showNumberDec(wins);
+            display.showNumberDec(GOOD);
             delay(1000);
           }
         } else{
-          for (int n=0; n<3; n++){
-            display.setSegments(NONE);
+          for (int n=0; n<5; n++){
+            display.setSegments(wins);
             delay(1000);
-            display.showNumberDec(wins);
+            display.showNumberDec(GOOD);
             delay(1000);
           }
         }
+        display.setSegments(BYE);
         exit(0);
       }
       
@@ -404,220 +450,3 @@ void loop() {
 
 
   
-
-
-
-
-
-//-----------------------------------------------------------------------------------------
-////Original version
-//
-//int motorControl3 (int interval) {
-//  
-//  Motor3.write(angleUP);
-//  Serial.println("Motor 3: UP");
-//  delay(2000);
-//  Serial.println("Motor 3: delayed");
-//  
-//  while (true) {
-//    int dif2 = millis() - previousMillis2;
-//    
-//    while (dif2 <= interval){
-//      int sensorReading = analogRead(Sensor3);
-//      Serial.println("Motor 3: WAIT");
-//      Serial.println(dif2);
-//    
-//      if (sensorReading >= threshold) {
-//        Motor1.write(angleInitial);
-//        wins++;
-//        break;
-//      }
-//    }
-//    
-//    if (dif2 > interval) {
-//      previousMillis2 = millis();
-//      break;
-//    }
-//  }
-//  
-//  Motor3.write(angleInitial);
-//  delay(2000);
-//  Serial.println("Motor 3: DOWN");
-//  return wins;
-//}
-
-
-
-
-
-//
-//----------------------------------------------------------------------------------------
-//// Whack a LED
-//
-//// Joystick variables
-//int sX = A0;     //joystick x axis, analog input
-//int sY = A1;     //joystick y axis, analog input
-//int sSX;         //state of x, reading from sX
-//int sSY;         //state of y, reading from sY
-//int sS;          //converted state (may not be most efficient)
-//
-//// Game variables
-//int rNum;        //random int choosing the random light to turn on
-//int wins=0;      //counting consecutive wins
-//int highScore=0; //saving the highest score of consecutive wins
-//
-//// Difficulty constants, time to react
-//const int easy=1000;
-//const int medium=500;
-//const int hard=325;
-//const int stupid=250;
-//
-//
-//int ledPins[]={5,2,4,3,6,7,8}; //initializing led's
-//int pinCount=7;                //number of led pins
-//
-//void setup() {
-//
-//Serial.begin(9600);
-//pinMode(sX, INPUT);
-//pinMode(sY, INPUT);
-//
-//for (int thisPin = 0; thisPin < pinCount; thisPin++) { //assigning all the pins as outputs in a for loop
-//    pinMode(ledPins[thisPin], OUTPUT);
-//  }
-//}
-//
-//void loop() {
-//
-//  rNum=random(4); //generating random choice
-//  delay(1000);
-//  digitalWrite(ledPins[rNum], HIGH); //lighting the randomly chosen bulb
-//  delay(stupid); //difficulty
-//
-//  //stick stuff
-//  sSX = analogRead(sX); //reading x axis input
-//  delay(100);
-//  sSY = analogRead(sY); //reading y axis input
-//
-//  //converting y and x inputs to 4 possibilities. 0 and 1023 are the maximum values on each axis of the joystick, as measured.
-//  sS=0;
-//  switch (sSX) {
-//  case 0:
-//  sS=1;      // Left
-//  break;
-//  case 1023:
-//  sS=2;      // Right
-//  break;
-//}
-//switch (sSY) {
-//  case 0:
-//  sS=3;      // Up
-//  break;
-//  case 1023:
-//  sS=4;      // Down
-//  break;
-//}
-//
-//  digitalWrite(ledPins[rNum], LOW); //turning off the randomly selected bulb, after the joystick choice was made
-//  if (sS-1==rNum) //checking if the user input the correct direction of the lit bulb
-//  {
-//    wins++;
-//    for (int k=0; k<=3; k++) {     //blinking green light indicating correct choice
-//    digitalWrite(ledPins[4], HIGH);
-//    delay(50);
-//    digitalWrite(ledPins[4], LOW);
-//    delay(50);
-//    }
-//  }
-//  else
-//  {
-//    if (wins>highScore) { //if the consecutive wins are more than the previous highscore, the new highscore is set.
-//        highScore=wins;
-//        wins=0;
-//    }
-//    for (int i=0; i<=3; i++) {       //blinking red light indicating incorrect choice
-//      digitalWrite(ledPins[5], HIGH);
-//      delay(50);
-//      digitalWrite(ledPins[5], LOW);
-//      delay(50);
-//    }
-//    for (int w=0; w<highScore; w++) { //displaying via counting and blinking the high score on a yellow bulb.
-//        digitalWrite(ledPins[6], HIGH);
-//        delay(200);
-//        digitalWrite(ledPins[6], LOW);
-//        delay(200);
-//    }
-//  }
-//  }
-//
-//  ---------------------------------------------------------------
-//
-//  #include <Stepper.h>
-//
-////motor
-//const int stepsPerRev = 100; //depends on motor
-//Stepper aStepper(stepsPerRev, 8, 9, 10, 11); // pins depends on circuit
-//Stepper bStepper(stepsPerRev, 8, 9, 10, 11);
-//Stepper cStepper(stepsPerRev, 8, 9, 10, 11);
-//
-////delay but not
-//unsigned long previousMillis = 0;
-//const long interval = 1000; //how long it stays up
-//
-////sensor
-//int fsr_val;
-//int fsr_pin = 0; //depends on circuit
-//bool unhit = true;
-//int threshold = 300; //depends on sensor but minimum reading
-//
-////LED
-//int LEDpin = 11; //depends on circuit
-//
-//void setup() {
-//  Serial.begin(9600);
-//  pinMode(LEDpin,OUTPUT);
-//}
-//
-//void loop() {
-//
-//  fsr_val = analogRead(fsr_pin);
-//  unsigned long currentMillis = millis();
-//
-//  // randomly pop up loop
-//  // had to change to while loop because break was not verified
-//  while (unhit){
-//    aStepper.setSpeed(50); //set constant in rpm
-//
-//    aStepper.step(25); //quarter movement up
-//
-//    //during the time target is up
-//    if (currentMillis - previousMillis >= interval) {
-//      // save the last time motor moved
-//      previousMillis = currentMillis;
-//
-//      if (fsr_val > threshold){
-//        unhit = false;
-//        break;
-//      } else {
-//        unhit = true;
-//      }
-//    }
-//
-//    aStepper.step(-25); //down
-//
-//    long x = random(1000,7000);
-//    delay(x); //how long it stays down
-//    }
-//
-//  //hit condition
-//  if (unhit == false){
-//    aStepper.step(-25); //target down
-//
-//    digitalWrite(LEDpin,HIGH); //LED blinks
-//    delay(1000);
-//    digitalWrite(LEDpin,LOW);
-//
-//    unhit = true; //reset to allow loop to continue
-//  }
-//
-//}
