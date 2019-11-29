@@ -44,7 +44,7 @@ const uint8_t GOOD[] = {
   SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,                     
   SEG_C | SEG_D | SEG_E | SEG_G,
   SEG_C | SEG_D | SEG_E | SEG_G,
-  SEG_D | SEG_E | SEG_F | SEG_G | SEG_A               
+  SEG_B | SEG_C | SEG_D | SEG_E | SEG_G                 
   };
 
 // 'bad'
@@ -52,7 +52,7 @@ const uint8_t BAD[] = {
   0,
   SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,                     
   SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,     
-  SEG_D | SEG_E | SEG_F | SEG_G | SEG_A               
+  SEG_B | SEG_C | SEG_D | SEG_E | SEG_G                 
   };
 
 // 'you'
@@ -99,14 +99,14 @@ int MotorPin4 = 11;
 int MotorPin5 = 12;
 
 //change the angle here
-int angleUP = 90;
+int angleUP = 45;
 int angleInitial = 0;
 
 //change the delay time for mole to stay here
-int easyUp = 3000;
+int easyUp = 2500;
 
 //change the delay time between moles here
-int easyDown = 5000;
+int easyDown = 2500;
 
 //time
 unsigned long previousMillisTime = 0;
@@ -116,6 +116,8 @@ unsigned long previousMillis2 = 0;
 unsigned long previousMillis3 = 0;
 unsigned long previousMillis4 = 0;
 unsigned long previousMillis5 = 0;
+unsigned long timer_track = 0;
+unsigned long total = 0;
 
 //change the sensor pin here
 int mainswitchPin = 7;
@@ -137,23 +139,22 @@ int pressSwitch4 = 0;
 int pressSwitch5 = 0;
 
 
-//set the sensor threshold here
-int threshold = 100;
-
 int randMotor;
 int wins = 0;
-int highScore = 0;
 
 //define function for each motors movement
 
 int motorControl1 (int interval) {
   Motor1.write(angleUP);
+  unsigned long total = millis() - timer_track;
   while (true) {
+    countDown(total); 
     int dif2 = millis() - previousMillis1;
+    countDown(total); 
     pressSwitch1 = digitalRead(switchPin1);
     Serial.println("Motor 1: UP");
     Serial.println(dif2);
-    countDown(); 
+    countDown(total); 
 
     
     if(pressSwitch1){
@@ -178,12 +179,15 @@ int motorControl1 (int interval) {
 
 int motorControl2 (int interval) {
   Motor2.write(angleUP);
+  unsigned long total = millis() - timer_track;
   while (true) {
+    countDown(total); 
     int dif2 = millis() - previousMillis2;
+    countDown(total); 
     pressSwitch2 = digitalRead(switchPin2);
     Serial.println("Motor 2: UP");
     Serial.println(dif2);
-    countDown(); 
+    countDown(total); 
 
         
     if(pressSwitch2){
@@ -208,12 +212,16 @@ int motorControl2 (int interval) {
 
 int motorControl3 (int interval) {
   Motor3.write(angleUP);
+  unsigned long total = millis() - timer_track;
   while (true) {
+    countDown(total); 
     int dif2 = millis() - previousMillis3;
+    countDown(total); 
     pressSwitch3 = digitalRead(switchPin3);
+    countDown(total); 
     Serial.println("Motor 3: UP");
     Serial.println(dif2);
-    countDown(); 
+    countDown(total); 
 
     if(pressSwitch3){
       digitalWrite(soundPin,HIGH);
@@ -237,12 +245,15 @@ int motorControl3 (int interval) {
 
 int motorControl4 (int interval) {
   Motor4.write(angleUP);
+  unsigned long total = millis() - timer_track;
   while (true) {
+    countDown(total); 
     int dif2 = millis() - previousMillis4;
+    countDown(total); 
     pressSwitch4 = digitalRead(switchPin4);
     Serial.println("Motor 4: UP");
     Serial.println(dif2);
-    countDown(); 
+    countDown(total); 
     
     if(pressSwitch4){
       digitalWrite(soundPin,HIGH);
@@ -265,18 +276,21 @@ int motorControl4 (int interval) {
 }
 
 int motorControl5 (int interval) {
-  Motor5.write(angleUP);
+  Motor5.write(135);
+  unsigned long total = millis() - timer_track;
   while (true) {
+    countDown(total); 
     int dif2 = millis() - previousMillis5;
+    countDown(total); 
     pressSwitch5 = digitalRead(switchPin5);
     Serial.println("Motor 5: UP");
     Serial.println(dif2);
-    countDown(); 
+    countDown(total); 
 
     if(pressSwitch5){
       digitalWrite(soundPin,HIGH);
       Serial.println("Motor 5: HIT");
-      Motor5.write(angleInitial);
+      Motor5.write(180);
       Serial.println("Motor 5: DOWN");
       wins++;
       return wins;
@@ -285,7 +299,7 @@ int motorControl5 (int interval) {
     
     if (dif2 > interval){
       Serial.println("Motor 5: BREAK");
-      Motor5.write(angleInitial);
+      Motor5.write(180);
       Serial.println("Motor 5: DOWN");
       return wins;
       break;
@@ -293,10 +307,10 @@ int motorControl5 (int interval) {
   }
 }
 
-int countDown(){
-  data[3] = display.encodeDigit((9-(millis()-6000)/1000 % 10));
-  data[2] = display.encodeDigit((11-(millis()-6000)/10000 % 10)%10);
-  data[1] = display.encodeDigit((120000-millis()+6000)/100000 % 10);
+int countDown(unsigned long total){
+  data[3] = display.encodeDigit((9-total/1000 % 10));
+  data[2] = display.encodeDigit((5-total/10000 % 10)%10);
+  data[1] = display.encodeDigit(0);
   data[0] = display.encodeDigit(0);
   display.setSegments(data);
 }
@@ -317,7 +331,7 @@ void setup() {
   Motor2.write(angleInitial);
   Motor3.write(angleInitial);
   Motor4.write(angleInitial);
-  Motor5.write(angleInitial);
+  Motor5.write(180);
 
  
   pinMode(switchPin1,INPUT);
@@ -350,21 +364,29 @@ void loop() {
     previousMillis4 = millis();
     previousMillis5 = millis();
     previousMillisTime = millis();
+    timer_track = millis();
     while(true){
-      int dif = millis() - previousMillis;
+      unsigned long dif = millis() - previousMillis;
+      unsigned long total = millis() - timer_track;
       Serial.print(dif);
       Serial.print(",");
       Serial.print(previousMillis);
+      Serial.print(",");
+      Serial.print(timer_track);
+      Serial.print(",");
+      Serial.print(total);
+      Serial.print(",");
+      Serial.print(millis());
       previousMillis1 = millis();
       previousMillis2 = millis();
       previousMillis3 = millis();
       previousMillis4 = millis();
       previousMillis5 = millis();
       Serial.println("."); 
-      countDown();       
+      countDown(total);       
      
       //total game time
-      if (millis()  > 126000) {
+      if (total  > 60000) {
         Serial.println("END");
         Serial.print("Score: ");
         Serial.println(wins);
@@ -374,18 +396,20 @@ void loop() {
         delay(1000);
         display.setSegments(GOT);
         delay(1000);
+        display.showNumberDec(wins);
+        delay(3000);
         if (wins >= 12){
-          for (int n=0; n<5; n++){
-            display.setSegments(wins);
+          for (int n=0; n<3; n++){
+            display.setSegments(GOOD);
             delay(1000);
-            display.showNumberDec(GOOD);
+            display.showNumberDec(wins);
             delay(1000);
           }
         } else{
           for (int n=0; n<5; n++){
-            display.setSegments(wins);
+            display.setSegments(BAD);
             delay(1000);
-            display.showNumberDec(GOOD);
+            display.showNumberDec(wins);
             delay(1000);
           }
         }
@@ -395,7 +419,8 @@ void loop() {
       
       if (dif >= easyDown) {
         randMotor = random(5);
-        if (randMotor == 0) {
+        if (randMotor == 0) { 
+          countDown(total); 
           Serial.print("Choose Motor 1");
           motorControl1(easyUp);
           delay(200);
@@ -405,6 +430,7 @@ void loop() {
           Serial.println(previousMillis);
         }
         if (randMotor == 1) {
+          countDown(total); 
           Serial.println("Choose Motor 2");
           motorControl2(easyUp);
           delay(200);
@@ -413,7 +439,8 @@ void loop() {
           previousMillis = millis();
           Serial.println(previousMillis);
         }
-        if (randMotor == 2) {
+        if (randMotor == 2) {  
+          countDown(total); 
           Serial.println("Choose Motor 3");
           motorControl3(easyUp);
           delay(200);
@@ -422,7 +449,8 @@ void loop() {
           previousMillis = millis();
           Serial.println(previousMillis);
         }  
-        if (randMotor == 3) {
+        if (randMotor == 3) { 
+          countDown(total); 
           Serial.println("Choose Motor 4");
           motorControl4(easyUp);
           delay(200);
@@ -432,6 +460,7 @@ void loop() {
           Serial.println(previousMillis);
         }  
         if (randMotor == 4) {
+          countDown(total); 
           Serial.println("Choose Motor 5");
           motorControl5(easyUp);
           delay(200);
@@ -447,6 +476,3 @@ void loop() {
   }
 
 }
-
-
-  
