@@ -1,41 +1,122 @@
 #include <Adafruit_CircuitPlayground.h>
-#include "C:\Users\Ana\Desktop\Gizmo\Project\pitches.h\pitches.h.ino"
+#define NOTE_C3  131
+#define NOTE_CS3 139
+#define NOTE_D3  147
+#define NOTE_DS3 156
+#define NOTE_E3  165
+#define NOTE_F3  175
+#define NOTE_FS3 185
+#define NOTE_G3  196
+#define NOTE_GS3 208
+#define NOTE_A3  220
+#define NOTE_AS3 233
+#define NOTE_B3  247
+#define NOTE_C4  262
+#define NOTE_CS4 277
+#define NOTE_D4  294
+#define NOTE_DS4 311
+#define NOTE_E4  330
+#define NOTE_F4  349
+#define NOTE_FS4 370
+#define NOTE_G4  392
+#define NOTE_GS4 415
+#define NOTE_A4  440
+#define NOTE_AS4 466
+#define NOTE_B4  494
+#define NOTE_C5  523
+#define NOTE_CS5 554
+#define NOTE_D5  587
+#define NOTE_DS5 622
+#define NOTE_E5  659
+#define NOTE_F5  698
+#define NOTE_FS5 740
+#define NOTE_G5  784
+#define NOTE_GS5 831
+#define NOTE_A5  880
+#define NOTE_AS5 932
+#define NOTE_B5  988
 
 // Melody notes:
-int melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
+int start_melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
   NOTE_C4, NOTE_C5,NOTE_G4, NOTE_E4, NOTE_C5,NOTE_G4, NOTE_E4, 
   NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
   NOTE_DS4, NOTE_E4, NOTE_F4, NOTE_F4, NOTE_FS4, NOTE_G4, NOTE_GS4, NOTE_A5, NOTE_B5 };
+
+int hit_melody[] = {NOTE_C5, NOTE_E5};
+
+int end_melody[] = { 
+  NOTE_G3, NOTE_C4, NOTE_C4, NOTE_D4, NOTE_C4, NOTE_B3, 
+  NOTE_A3, NOTE_A3, NOTE_A3, 
+  NOTE_D4, NOTE_D4, NOTE_E4, NOTE_D4, NOTE_C4,
+  NOTE_B3, NOTE_G3, NOTE_G3,
+  NOTE_E4, NOTE_E4, NOTE_F4, NOTE_E4, NOTE_D4,
+  NOTE_C4, NOTE_A3, NOTE_G3, NOTE_G3,
+  NOTE_A3, NOTE_D4, NOTE_B3, NOTE_C4 };
   
 // note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = { 8,8,8,8,16,5,4,8,8,8,8,16,5,4,8,8,8,8,16,5,4,24,24,12,24,24,12,24,24,12,6 };
+int start_noteDurations[] = { 8,8,8,8,16,5,4,8,8,8,8,16,5,4,8,8,8,8,16,5,4,24,24,12,24,24,12,24,24,12,6 };
+int hit_noteDurations[] = { 16, 16 };
+int end_noteDurations[] = {4,4,8,8,8,8,4,4,4,4,8,8,8,8,4,4,4,4,8,8,8,8,4,4,8,8,4,4,4,2};
 
+//pins
 int mainpress = 0;
 int mainswitchPin = 9;
+int pressSwitches = 0;
+int switchPin = 10;
+int timer_track;
+unsigned long total = 0;
+bool reset = true;  // a game has yet to be started
 
 void setup() {
-
   CircuitPlayground.begin();
+  Serial.begin(9600);
   pinMode(mainswitchPin,INPUT);
-  
+  pinMode(switchPin,INPUT);
 }
 
 void loop() { 
+  pressSwitches = 0;
   mainpress = digitalRead(mainswitchPin);
-  if(mainpress) { 
-    
-    for (int thisNote = 0; thisNote < 31; thisNote++) {
-      
-            int noteDuration = 600/noteDurations[thisNote];
-             // to calculating note duration  (1 second divided by the note type)
-             
-             CircuitPlayground.playTone(melody[thisNote],noteDuration);
-             // to distinguish the notes, set a minimum time between them.
-             
-             int pauseBetweenNotes = noteDuration * 1.10;
-             delay(pauseBetweenNotes);
-             noTone(8);
-       }   
-    }
+  pressSwitches = digitalRead(switchPin);
+  total = millis() - timer_track;
+  Serial.print(millis());
+  Serial.print(":");
+  Serial.print(total);
+  Serial.print(":");
+  Serial.println(timer_track);
   
+  if(mainpress && reset) { 
+    timer_track = millis();
+    reset = false;
+    for (int thisNote = 0; thisNote < 31; thisNote++) {
+      int noteDuration = 600/start_noteDurations[thisNote];
+      CircuitPlayground.playTone(start_melody[thisNote],noteDuration);
+      int pauseBetweenNotes = noteDuration * 1.10;
+      delay(pauseBetweenNotes);
+      noTone(8);
+      }   
+    }
+
+  if (pressSwitches) { 
+    for (int thisNote = 0; thisNote < 2; thisNote++) {
+      int noteDuration = 600/hit_noteDurations[thisNote];
+      CircuitPlayground.playTone(hit_melody[thisNote],noteDuration);
+      int pauseBetweenNotes = noteDuration * 1.10;
+      delay(pauseBetweenNotes);
+      noTone(8);
+      }
+    pressSwitches = 0; 
+    delay(500);
+    }
+
+  if (total == 67000) {
+    for (int thisNote = 0; thisNote < 30; thisNote++) {
+      int noteDuration = 600/end_noteDurations[thisNote];
+      CircuitPlayground.playTone(end_melody[thisNote],noteDuration);
+      int pauseBetweenNotes = noteDuration * 1.10;
+      delay(pauseBetweenNotes);
+      noTone(8);
+    }
+    reset = true;
+  }
  }
