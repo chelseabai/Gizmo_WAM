@@ -462,6 +462,10 @@ void loop() {
         reset = true;
         easyUp = 2500;
         easyDown = 2500;
+        int thing = 9-total/1000 % 10;
+        Serial.print(total);
+        Serial.print(";");
+        Serial.println(thing);
         Serial.println("END");
         Serial.print("Score: ");
         Serial.println(wins);
@@ -490,6 +494,7 @@ void loop() {
           }
         }
         display.setSegments(BYE);
+        delay(1000);
         break;
       }    
      }    
