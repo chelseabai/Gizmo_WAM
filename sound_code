@@ -1,4 +1,6 @@
 #include <Adafruit_CircuitPlayground.h>
+
+// Originally written by Brett Hagman - https://github.com/bhagman/Tone/blob/master/Tone.h
 #define NOTE_C3  131
 #define NOTE_CS3 139
 #define NOTE_D3  147
@@ -36,7 +38,7 @@
 #define NOTE_AS5 932
 #define NOTE_B5  988
 
-// Melody notes:
+// Melody notes: defined in a list format, one for each song
 int start_melody[] = { NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
   NOTE_C4, NOTE_C5,NOTE_G4, NOTE_E4, NOTE_C5,NOTE_G4, NOTE_E4, 
   NOTE_B4, NOTE_B5, NOTE_FS4, NOTE_DS4, NOTE_B5, NOTE_FS4,NOTE_DS4,
@@ -59,10 +61,10 @@ int hit_noteDurations[] = { 16, 16 };
 int end_noteDurations[] = {4,4,8,8,8,8,4,4,4,4,8,8,8,8,4,4,4,4,8,8,8,8,4,4,8,8,4,4,4,2};
 
 //pins
-int mainpress = 0;
-int mainswitchPin = 9;
+int mainpress = 0; // initial state of main switch
+int mainswitchPin = 9; // pin leads directly to main switch on breadboard
 int pressSwitches = 0;
-int switchPin = 10;
+int switchPin = 10; // shared pin between boards
 int timer_track;
 unsigned long total = 0;
 bool reset = true;  // a game has yet to be started
@@ -75,24 +77,27 @@ void setup() {
 }
 
 void loop() { 
-  pressSwitches = 0;
-  mainpress = digitalRead(mainswitchPin);
+  mainpress = digitalRead(mainswitchPin); // read whether switch has been pressed or not
   pressSwitches = digitalRead(switchPin);
-  total = millis() - timer_track;
-  Serial.print(millis());
+  pressSwitches = 0; // so switch sound effect does not continue to sound once any one switch has been pressed
+  total = millis() - timer_track; // used to track how long the game has been playing
+  Serial.print(millis()); // print statements for testing
   Serial.print(":");
   Serial.print(total);
   Serial.print(":");
   Serial.println(timer_track);
   
   if(mainpress && reset) { 
-    timer_track = millis();
-    reset = false;
+    timer_track = millis(); // constantly update tracking for timer
+    reset = false; // game has been started ie has not been reset
+    
+    // for loop used to play each note in a single melody list
+    // based on https://learn.adafruit.com/circuit-playground-music/the-sound-of-music
     for (int thisNote = 0; thisNote < 31; thisNote++) {
       int noteDuration = 600/start_noteDurations[thisNote];
-      CircuitPlayground.playTone(start_melody[thisNote],noteDuration);
+      CircuitPlayground.playTone(start_melody[thisNote],noteDuration); //in built function for playing sound
       int pauseBetweenNotes = noteDuration * 1.10;
-      delay(pauseBetweenNotes);
+      delay(pauseBetweenNotes); //to distinguish between notes
       noTone(8);
       }   
     }
@@ -105,8 +110,8 @@ void loop() {
       delay(pauseBetweenNotes);
       noTone(8);
       }
-    pressSwitches = 0; 
-    delay(500);
+    pressSwitches = 0;
+    delay(500); // delay just to prevent hit_melody from running again as switch may still be being pressed by user
     }
 
   if (total == 67000) {
@@ -117,6 +122,6 @@ void loop() {
       delay(pauseBetweenNotes);
       noTone(8);
     }
-    reset = true;
+    reset = true; // game finished
   }
  }
